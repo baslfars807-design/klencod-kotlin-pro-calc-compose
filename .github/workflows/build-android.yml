@@ -34,35 +34,25 @@ jobs:
           packages: 'platforms;android-34 build-tools;34.0.0'
           accept-android-sdk-licenses: true
 
+      # إعداد Gradle من النظام لضمان الاستقرار
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.4'
+
+      # حذف ملفات الـ Wrapper التالفة حتى لا يحاول استخدامها
+      - name: Remove corrupt Gradle wrapper
+        run: |
+          rm -rf gradle/wrapper/
+          rm -f gradlew gradlew.bat
+          echo "✅ تم حذف ملفات الـ Wrapper التالفة"
+
+      # البناء باستخدام Gradle العادي
       - name: Build debug APK
         shell: bash
         run: |
-          set -o pipefail
-          LOG="$RUNNER_TEMP/klencod-gradle.log"
-
-          if [ -f gradlew ]; then
-            echo "✅ Using Gradle Wrapper (gradlew)"
-            chmod +x gradlew || true
-            ./gradlew --no-daemon --build-cache --parallel \
-              :app:assembleDebug -x lint -x test 2>&1 | tee "$LOG"
-          else
-            echo "⚠️ gradlew غير موجود — استخدام gradle من النظام"
-            echo "ℹ️ هذا شائع في المشاريع المستوردة من الخارج"
-            gradle --no-daemon --build-cache --parallel \
-              :app:assembleDebug -x lint -x test 2>&1 | tee "$LOG"
-          fi
-
-      - name: Print compiler diagnostics on failure
-        if: failure()
-        shell: bash
-        run: |
-          LOG="$RUNNER_TEMP/klencod-gradle.log"
-          echo "===== Klencod compiler diagnostics ====="
-          if [[ -f "$LOG" ]]; then
-            grep -E 'error:|warning:|FAILED|Compilation failed|BUILD FAILED|What went wrong' "$LOG" | tail -n 120 || true
-          else
-            echo "Gradle output file was not created."
-          fi
+          gradle --no-daemon --build-cache --parallel \
+            :app:assembleDebug -x lint -x test
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
