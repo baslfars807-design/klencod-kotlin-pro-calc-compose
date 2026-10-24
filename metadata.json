@@ -1,0 +1,6 @@
+{
+  "name": "Calculator",
+  "description": "A modern, professional Material 3 calculator with expression evaluation, calculation history, customizable themes, and offline support.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
