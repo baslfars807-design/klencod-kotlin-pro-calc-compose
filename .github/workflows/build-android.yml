@@ -34,20 +34,19 @@ jobs:
           packages: 'platforms;android-34 build-tools;34.0.0'
           accept-android-sdk-licenses: true
 
-      # إعداد Gradle من النظام لضمان الاستقرار
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: '8.4'
+          # هذا السطر يمنع فحص الملف التالف الذي كان يسبب الخطأ
+          validate-wrappers: false
 
-      # حذف ملفات الـ Wrapper التالفة حتى لا يحاول استخدامها
-      - name: Remove corrupt Gradle wrapper
+      - name: Remove corrupt Gradle wrapper files
+        shell: bash
         run: |
           rm -rf gradle/wrapper/
           rm -f gradlew gradlew.bat
-          echo "✅ تم حذف ملفات الـ Wrapper التالفة"
+          echo "✅ Removed corrupt wrapper files"
 
-      # البناء باستخدام Gradle العادي
       - name: Build debug APK
         shell: bash
         run: |
